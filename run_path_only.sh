@@ -1,0 +1,1 @@
+python run.py --model llama --path_only --save_model wholefb25k --save_path wholefb15k
