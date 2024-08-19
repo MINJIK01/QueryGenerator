@@ -110,12 +110,11 @@ def main(args):
 
     # degree_wgh이 더 작을 수록 각 query별 answer의 다양성이 높아짐
 
-    degree_wgh_ctrl = 40
+    degree_wgh_ctrl = 1000
     # wgh1= degree_wgh_ctrl
     # wgh2 = degree_wgh_ctrl
-    wgh1 = 5000
-    # wgh1= degree_wgh_ctrl ** (1/3)
-    wgh2 = degree_wgh_ctrl ** (1/4)
+    wgh1= degree_wgh_ctrl ** (1/2)
+    wgh2 = degree_wgh_ctrl ** (1/3)
 
     # degree_wgh이 더 작을 수록 각 query별 answer의 다양성이 높아짐
     degree_wgh = 3560
@@ -150,7 +149,8 @@ def main(args):
     sort = False
     suffle = True
     diversity_rel = False
-    entity_num = 1
+    diversity_entity = True
+    entity_num = 14505
     limit = 3860
 
     for q_type in query_type_list:
@@ -182,7 +182,7 @@ def main(args):
 
 
                 for itr_count1, (start, end, data1) in enumerate(edges1):
-                    if diversity_rel:
+                    if diversity_entity:
                         if itr_count1 >= wgh1:
                             break
                     rel1 = tuple(data1.values())
@@ -239,7 +239,7 @@ def main(args):
                     edges1 = sorted(edges1, key=lambda x: x[2]['p'], reverse=True)
 
                 for itr_count1, (start, bounded1, data1) in enumerate(edges1):
-                    if diversity_rel:
+                    if diversity_entity:
                         if itr_count1 >= wgh1:
                             break
                     rel1 = tuple(data1.values())  # 첫 번째 edge
@@ -257,15 +257,19 @@ def main(args):
                         edges2 = sorted(edges2, key=lambda x: x[2]['p'], reverse=True)
                     
                     for itr_count2, (_, end, data2) in enumerate(edges2):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count2 >= wgh1:
                                 break
+
+                        rel2 = tuple(data2.values())
 
                         # loop query 방지
                         if end == start:
                             continue
-
-                        rel2 = tuple(data2.values())
+                        if rel2 % 2 == 0 and rel1[0] == rel2[0]+1:
+                            continue
+                        elif rel1[0] == rel2[0]-1:
+                            continue
 
                         if diversity_rel:
                             if relation_dict_whole.get(rel2[0], 0) >= limit:
@@ -320,7 +324,7 @@ def main(args):
                     edges1 = sorted(edges1, key=lambda x: x[2]['p'], reverse=True)
 
                 for itr_count1, (start, bounded1, data1) in enumerate(edges1):
-                    if diversity_rel:
+                    if diversity_entity:
                         if itr_count1 >= wgh2:
                             break
                     rel1 = tuple(data1.values())  # 첫 번째 edge
@@ -337,14 +341,19 @@ def main(args):
                     if sort:
                         edges2 = sorted(edges2, key=lambda x: x[2]['p'], reverse=True)
                     for itr_count2, (_, bounded2, data2) in enumerate(tqdm(edges2)):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count2 >= wgh2:
                                 break
+
+                        rel2 = tuple(data2.values())
 
                         # loop query 방지
                         if bounded2 == start:
                             continue
-                        rel2 = tuple(data2.values())
+                        if rel2 % 2 == 0 and rel1[0] == rel2[0]+1: # rel2가 짝수면 바로 다음 홀수랑 pair이므로 rel1이 rel2보다 바로 다음으로 더 큰 홀수인지 확인
+                            continue
+                        elif rel1[0] == rel2[0]-1:
+                            continue
 
                         if diversity_rel:
                             if relation_dict_whole.get(rel2[0], 0) >= limit:
@@ -354,13 +363,19 @@ def main(args):
                         # 세 번째 edge
                         edges3 = mG.out_edges(bounded2, keys=False, data=True)
                         for itr_count3, (_, end, data3) in enumerate(edges3):
-                            if diversity_rel:
+                            if diversity_entity:
                                 if itr_count3 >= wgh2:
                                     break
+
+                            rel3 = tuple(data3.values())
+
                             # loop query 방지
                             if end == start or end == bounded1:
                                 continue
-                            rel3 = tuple(data3.values())
+                            if rel3 % 2 == 0 and rel2 == rel3+1:
+                                continue
+                            elif rel2 == rel3-1:
+                                continue
 
                             if diversity_rel:
                                 if relation_dict_whole.get(rel3[0], 0) >= limit:
@@ -416,7 +431,7 @@ def main(args):
 
                 # 첫 번째 edge
                 for itr_count1, (start1, end, data1) in enumerate(edges1):
-                    if diversity_rel:
+                    if diversity_entity:
                         if itr_count1 >= wgh1:
                             break
                     rel1 = tuple(data1.values())
@@ -430,7 +445,7 @@ def main(args):
                     # 두 번째 edge
                     edges2 = mG.in_edges(end, keys=False, data=True)
                     for itr_count2, (start2, _, data2) in enumerate(edges2):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count2 >= wgh1:
                                 break
                         if start2 == start1:
@@ -495,7 +510,7 @@ def main(args):
 
                 # 첫 번째 edge
                 for itr_count1, (start1, end, data1) in enumerate(edges1):
-                    if diversity_rel:
+                    if diversity_entity:
                         if itr_count1 >= wgh1:
                             break
 
@@ -514,7 +529,7 @@ def main(args):
                         edges2 = sorted(edges2, key=lambda x: x[2]['p'], reverse=True)
 
                     for itr_count2, (start2, _, data2) in enumerate(edges2):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count2 >= wgh1:
                                 break
 
@@ -604,7 +619,7 @@ def main(args):
 
                 # 첫 번째 edge
                 for itr_count1, (start1, end, data1) in enumerate(edges1):
-                    if diversity_rel:
+                    if diversity_entity:
                         if itr_count1 >= wgh2:
                             break
                     rel1 = tuple(data1.values())
@@ -621,13 +636,15 @@ def main(args):
                         edges2 = sorted(edges2, key=lambda x: x[2]['p'], reverse=True)
 
                     for itr_count2, (start2, _, data2) in enumerate(edges2):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count2 >= wgh2:
                                 break
-                        if start2 == start1:
-                            continue
 
                         rel2 = tuple(data2.values())
+
+                        # loop query 방지
+                        if start2 == start1:
+                            continue
 
                         if diversity_rel:
                             if relation_dict_whole.get(rel2[0], 0) >= limit:
@@ -656,7 +673,7 @@ def main(args):
                     # 세 번째 edge
                     edges3 = mG.out_edges(bounded1, keys=False, data=True)
                     for itr_count3, (_, end, data3) in enumerate(edges3):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count3 >= wgh2:
                                 break
                         if end == start1 or end == start2:
@@ -720,7 +737,7 @@ def main(args):
 
                 # 첫 번째 edge
                 for itr_count1, (start1, end, data1) in enumerate(edges1):
-                    if diversity_rel:
+                    if diversity_entity:
                         if itr_count1 >= wgh1:
                             break
                     rel1 = tuple(data1.values())
@@ -733,7 +750,7 @@ def main(args):
                     # 두 번째 edge
                     edges2 = mG.in_edges(end, keys=False, data=True)
                     for itr_count2, (start2, _, data2) in enumerate(edges2):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count2 >= wgh1:
                                 break
                         if start2 == start1:
@@ -793,7 +810,7 @@ def main(args):
 
                 # 첫 번째 edge
                 for itr_count1, (start1, end, data1) in enumerate(edges1):
-                    if diversity_rel:
+                    if diversity_entity:
                         if itr_count1 >= wgh1:
                             break
 
@@ -810,7 +827,7 @@ def main(args):
                     if sort:
                         edges2 = sorted(edges2, key=lambda x: x[2]['p'], reverse=True)
                     for itr_count2, (start2, _, data2) in enumerate(edges2):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count2 >= wgh1:
                                 break
 
@@ -890,7 +907,7 @@ def main(args):
                     edges1 = sorted(edges1, key=lambda x: x[2]['p'], reverse=True)
 
                 for itr_count1, (start1, bounded1, data1) in enumerate(edges1):
-                    if diversity_rel:
+                    if diversity_entity:
                         if itr_count1 >= wgh2:
                             break
                     rel1 = tuple(data1.values())  # 첫 번째 edge
@@ -908,15 +925,20 @@ def main(args):
                         edges2 = sorted(edges2, key=lambda x: x[2]['p'], reverse=True)
 
                     for itr_count2, (_, end, data2) in enumerate(edges2):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count2 >= wgh2:
                                 break
+
+
+                        rel2 = tuple(data2.values())
 
                         # loop query 방지
                         if end == start1:
                             continue
-
-                        rel2 = tuple(data2.values())
+                        if rel2 % 2 == 0 and rel1[0] == rel2[0]+1:
+                            continue
+                        elif rel1[0] == rel2[0]-1:
+                            continue
 
                         if diversity_rel:
                             if relation_dict_whole.get(rel2[0], 0) >= limit:
@@ -950,7 +972,7 @@ def main(args):
                         edges3 = mG.in_edges(end, keys=False, data=True)
 
                         for itr_count3, (start2, _, data) in enumerate(edges3):
-                            if diversity_rel:
+                            if diversity_entity:
                                 if itr_count3 >= wgh2:
                                     break
                             if start2 == q_2p[0] or start2 in set(prepare[list_2p[0]]['bounded']):
@@ -1019,7 +1041,7 @@ def main(args):
 
                 # 첫 번째 edge
                 for itr_count1, (start1, end, data1) in enumerate(edges1):
-                    if diversity_rel:
+                    if diversity_entity:
                         if itr_count1 >= wgh2:
                             break
                     rel1 = tuple(data1.values())
@@ -1035,13 +1057,15 @@ def main(args):
                     if sort:
                         edges2 = sorted(edges2, key=lambda x: x[2]['p'], reverse=True)
                     for itr_count2, (start2, _, data2) in enumerate(edges2):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count2 >= wgh2:
                                 break
-                        if start2 == start1:
-                            continue
 
                         rel2 = tuple(data2.values())
+
+                        # loop query 방지
+                        if start2 == start1:
+                            continue
 
                         if diversity_rel:
                             if relation_dict_whole.get(rel2[0], 0) >= limit:
@@ -1069,7 +1093,7 @@ def main(args):
                     # 세 번째 edge
                     edges3 = mG.out_edges(bounded1, keys=False, data=True)
                     for itr_count3, (_, end, data3) in enumerate(edges3):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count3 >= wgh2:
                                 break
                         if end == start1 or end == start2:
@@ -1133,7 +1157,7 @@ def main(args):
                     edges1 = sorted(edges1, key=lambda x: x[2]['p'], reverse=True)
 
                 for itr_count1, (start1, bounded1, data1) in enumerate(edges1):
-                    if diversity_rel:
+                    if diversity_entity:
                         if itr_count1 >= wgh2:
                             break
                     rel1 = tuple(data1.values())  # 첫 번째 edge
@@ -1150,15 +1174,19 @@ def main(args):
                         edges2 = sorted(edges2, key=lambda x: x[2]['p'], reverse=True)
 
                     for itr_count2, (_, end, data2) in enumerate(edges2):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count2 >= wgh2:
                                 break
+
+                        rel2 = tuple(data2.values())
 
                         # loop query 방지
                         if end == start1:
                             continue
-
-                        rel2 = tuple(data2.values())
+                        if rel2 % 2 == 0 and rel1[0] == rel2[0]+1:
+                            continue
+                        elif rel1[0] == rel2[0]-1:
+                            continue
                         
                         if diversity_rel:
                             if relation_dict_whole.get(rel2[0], 0) >= limit:
@@ -1191,7 +1219,7 @@ def main(args):
                         edges3 = mG.in_edges(end, keys=False, data=True)
 
                         for itr_count3, (start2, _, data) in enumerate(edges3):
-                            if diversity_rel:
+                            if diversity_entity:
                                 if itr_count3 >= wgh2:
                                     break
                             if start2 == q_2p[0] or start2 in set(prepare[list_2p[0]]['bounded']):
@@ -1255,7 +1283,7 @@ def main(args):
                     edges1 = sorted(edges1, key=lambda x: x[2]['p'], reverse=True)
 
                 for itr_count1, (start1, bounded1, data1) in enumerate(edges1):
-                    if diversity_rel:
+                    if diversity_entity:
                         if itr_count1 >= wgh2:
                             break
                     rel1 = tuple(data1.values())  # 첫 번째 edge
@@ -1271,15 +1299,20 @@ def main(args):
                     if sort:
                         edges2 = sorted(edges2, key=lambda x: x[2]['p'], reverse=True)
                     for itr_count2, (_, end, data2) in enumerate(edges2):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count2 >= wgh2:
                                 break
+
+                        rel2 = tuple(data2.values())
 
                         # loop query 방지
                         if end == start1:
                             continue
+                        if rel2 % 2 == 0 and rel1[0] == rel2[0]+1:
+                            continue
+                        elif rel1[0] == rel2[0]-1:
+                            continue
 
-                        rel2 = tuple(data2.values())
                         if diversity_rel:
                             if relation_dict_whole.get(rel2[0], 0) >= limit:
                                 continue
@@ -1310,7 +1343,7 @@ def main(args):
                         edges1 = mG.in_edges(end, keys=False, data=True)
 
                         for itr_count3, (start2, _, data) in enumerate(edges1):
-                            if diversity_rel:
+                            if diversity_entity:
                                 if itr_count3 >= wgh2:
                                     break
                             if start2 == q_2p[0] or start2 in set(prepare[list_2p[0]]['bounded']):
@@ -1375,7 +1408,7 @@ def main(args):
 
                 # 첫 번째 edge
                 for itr_count1, (start1, end, data1) in enumerate(edges1):
-                    if diversity_rel:
+                    if diversity_entity:
                         if itr_count1 >= wgh1:
                             break
                     rel1 = tuple(data1.values())
@@ -1389,7 +1422,7 @@ def main(args):
                     # 두 번째 edge
                     edges2 = mG.in_edges(end, keys=False, data=True)
                     for itr_count2, (start2, _, data2) in enumerate(edges2):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count2 >= wgh1:
                                 break
                         if start2 == start1:
@@ -1454,7 +1487,7 @@ def main(args):
 
                 # 첫 번째 edge
                 for itr_count1, (start1, end, data1) in enumerate(edges1):
-                    if diversity_rel:
+                    if diversity_entity:
                         if itr_count1 >= wgh2:
                             break
                     rel1 = tuple(data1.values())
@@ -1471,7 +1504,7 @@ def main(args):
                         edges2 = sorted(edges2, key=lambda x: x[2]['p'], reverse=True)
 
                     for itr_count2, (start2, _, data2) in enumerate(edges2):
-                        if diversity_rel:
+                        if diversity_entity:
                             if itr_count2 >= wgh2:
                                 break
                         if start2 == start1:
@@ -1567,8 +1600,8 @@ def main(args):
         pickle.dump(answer_data, file1)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="datagenerating")
-    parser.add_argument('--data', type=str, default="dummy_0001")
+    parser = argparse.ArgumentParser(description="data generating...")
+    parser.add_argument('--data', type=str, default="dummy_0002")
     args = parser.parse_args()
 
     main(args)
