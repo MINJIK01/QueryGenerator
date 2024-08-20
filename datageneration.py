@@ -266,7 +266,7 @@ def main(args):
                         # loop query 방지
                         if end == start:
                             continue
-                        if rel2 % 2 == 0 and rel1[0] == rel2[0]+1:
+                        if rel2[0] % 2 == 0 and rel1[0] == rel2[0]+1:
                             continue
                         elif rel1[0] == rel2[0]-1:
                             continue
@@ -350,7 +350,7 @@ def main(args):
                         # loop query 방지
                         if bounded2 == start:
                             continue
-                        if rel2 % 2 == 0 and rel1[0] == rel2[0]+1: # rel2가 짝수면 바로 다음 홀수랑 pair이므로 rel1이 rel2보다 바로 다음으로 더 큰 홀수인지 확인
+                        if rel2[0] % 2 == 0 and rel1[0] == rel2[0]+1: # rel2가 짝수면 바로 다음 홀수랑 pair이므로 rel1이 rel2보다 바로 다음으로 더 큰 홀수인지 확인
                             continue
                         elif rel1[0] == rel2[0]-1:
                             continue
@@ -372,7 +372,7 @@ def main(args):
                             # loop query 방지
                             if end == start or end == bounded1:
                                 continue
-                            if rel3 % 2 == 0 and rel2 == rel3+1:
+                            if rel3[0] % 2 == 0 and rel2[0] == rel3[0]+1:
                                 continue
                             elif rel2 == rel3-1:
                                 continue
@@ -935,7 +935,7 @@ def main(args):
                         # loop query 방지
                         if end == start1:
                             continue
-                        if rel2 % 2 == 0 and rel1[0] == rel2[0]+1:
+                        if rel2[0] % 2 == 0 and rel1[0] == rel2[0]+1:
                             continue
                         elif rel1[0] == rel2[0]-1:
                             continue
@@ -1183,7 +1183,7 @@ def main(args):
                         # loop query 방지
                         if end == start1:
                             continue
-                        if rel2 % 2 == 0 and rel1[0] == rel2[0]+1:
+                        if rel2[0] % 2 == 0 and rel1[0] == rel2[0]+1:
                             continue
                         elif rel1[0] == rel2[0]-1:
                             continue
@@ -1308,7 +1308,7 @@ def main(args):
                         # loop query 방지
                         if end == start1:
                             continue
-                        if rel2 % 2 == 0 and rel1[0] == rel2[0]+1:
+                        if rel2[0] % 2 == 0 and rel1[0] == rel2[0]+1:
                             continue
                         elif rel1[0] == rel2[0]-1:
                             continue
