@@ -422,7 +422,7 @@ def main(args):
                                 continue
                             if rel3[0] % 2 == 0 and rel2[0] == rel3[0]+1:
                                 continue
-                            elif rel2 == rel3-1:
+                            elif rel2[0] == rel3[0]-1:
                                 continue
 
                             if diversity_rel:
